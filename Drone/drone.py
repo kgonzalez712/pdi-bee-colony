@@ -1,0 +1,167 @@
+import random
+
+#This class will model both ants and bees
+#used on the ACO and BCO algorithms
+class Drone:
+    def __init__(self, initialDirection, initialX, initialY, moveCriteria):
+        self.direction = initialDirection
+        self.positionX = initialX
+        self.positionY = initialY
+        self.northValue = 0
+        self.southValue = 0
+        self.eastValue = 0
+        self.westValue = 0
+        self.northCriteria = 0
+        self.southCriteria = 0
+        self.eastCriteria = 0
+        self.westCriteria = 0
+        self.moveCriteria = moveCriteria #moveCriteria refers to the pheromone intensity
+                                         # and nectar value used by ant and bees to figure
+                                         # out their next move
+    
+    #this fuctions is used to move the drones inside the territory
+    def move(self, territory):
+        moveOptions = self.getMoveOptions(territory)
+        sortedOptions = sorted(moveOptions, key=lambda x: x[1])
+        options_number = len(sortedOptions)
+        if options_number == 1:
+        moveDirection = sortedOptions[0][0]
+        elif options_number == 2:
+        if sortedOptions[0][1] == sortedOptions[1][1]:
+            position = random.randint(0, 1)
+            moveDirection = sortedOptions[position][0]
+        else:
+            moveDirection = sortedOptions[0][0]
+        elif options_number == 3:
+        if sortedOptions[0][1] == sortedOptions[1][1]:
+            if sortedOptions[0][1] == sortedOptions[2][1]:
+            position = random.randint(0, 2)
+            moveDirection = sortedOptions[position][0]
+            else:
+            position = random.randint(0, 1)
+            moveDirection = sortedOptions[position][0]
+        else:
+            moveDirection = sortedOptions[0][0]
+        self.changeCell(moveDirection)
+        return
+    
+    def changeDirection(self, direction):
+        cardinalPoints = ["north", "south", "east", "west"]
+        cardinalPoints.remove(direction)
+        directionIndex = random.randint(0,2)
+        newDirection = cardinalPoints[directionIndex]
+        self.direction = newDirection
+        return newDirection
+
+    def changeCell(self, moveDirection):
+        if moveDirection == "north":
+            self.positionY = self.positionY - 1
+        elif moveDirection == "south":
+            self.positionY = self.positionY + 1
+        elif moveDirection == "east":
+            self.positionX = self.positionX + 1
+        elif moveDirection == "west":
+            self.positionX = self.positionX - 1
+
+
+    def getMoveOptions(self, territory):
+        self.checkNeighborState(territory)
+        moveOptions = []
+        if self.direction == "north":      
+        if self.eastValue == 0:
+            moveOptions.append(("east", self.eastCriteria))
+        if self.westValue == 0:
+            moveOptions.append(("west", self.westCriteria))
+        if self.northValue == 0:
+            moveOptions.append(("north", self.northCriteria))
+        else:
+            if len(moveOptions) == 0:
+            self.direction = "south"
+            moveOptions.append(("south", self.southCriteria))
+            else:
+            self.changeDirection("north")
+
+        elif self.direction == "south":
+        if self.eastValue == 0:
+            moveOptions.append(("east", self.eastCriteria))
+        if self.westValue == 0:
+            moveOptions.append(("west", self.westCriteria))
+        if self.southValue == 0:
+            moveOptions.append(("south", self.southCriteria))
+        else:
+            if len(moveOptions) == 0:
+            self.direction = "north"
+            moveOptions.append(("north", self.southCriteria))
+            else:
+            self.changeDirection("south")
+
+        elif self.direction == "east":
+        if self.northValue == 0:
+            moveOptions.append(("north", self.northCriteria))
+        if self.southValue == 0:
+            moveOptions.append(("south", self.southCriteria))
+        if self.eastValue == 0:
+            moveOptions.append(("east", self.eastCriteria))
+        else:
+            if len(moveOptions) == 0:
+            self.direction = "west"
+            moveOptions.append(("west", self.southCriteria))
+            else:
+            self.changeDirection("east")
+        elif self.direction == "west":
+        if self.northValue == 0:
+            moveOptions.append(("north", self.northCriteria))
+        if self.southValue == 0:
+            moveOptions.append(("south", self.southCriteria))
+        if self.westValue == 0:
+            moveOptions.append(("west", self.westCriteria))
+        else:
+            if len(moveOptions) == 0:
+            self.direction = "east"
+            moveOptions.append(("east", self.southCriteria))
+            else:
+            self.changeDirection("west")
+        return moveOptions
+
+    def checkNeighborState(self, territory):
+        self.checkNorthNeighbor(territory)
+        self.checkSouthNeighbor(territory)
+        self.checkEastNeighbor(territory)
+        self.checkWestNeighbor(territory)
+
+    def checkNorthNeighbor(self, territory):
+        if self.positionY == 0:
+            self.northValue = 1
+        else:
+            self.northValue = territory[self.positionY-1][self.positionX].value
+            self.northCriteria = territory[self.positionY-1][self.positionX].moveCriteria
+        return
+
+    def checkSouthNeighbor(self, territory):
+        if self.positionY == len(territory) - 1:
+            self.southValue = 1
+        else:
+            self.southValue = territory[self.positionY+1][self.positionX].value
+            self.southCriteria = territory[self.positionY+1][self.positionX].moveCriteria
+        return
+    
+    def checkEastNeighbor(self, territory):
+        if self.positionX == len(territory)-1:
+            self.eastValue = 1
+        else:
+            self.eastValue = territory[self.positionY][self.positionX+1].value
+            self.eastCriteria = territory[self.positionY][self.positionX+1].moveCriteria
+        return
+    
+    def checkWestNeighbor(self, territory):
+        if self.positionX == 0:
+            self.westValue = 1
+        else:
+            self.westValue = territory[self.positionY][self.positionX-1].value
+            self.westCriteria = territory[self.positionY][self.positionX-1].moveCriteria
+        return
+
+    def depositMoveCriteria(self, territory):
+        territory[self.positionY][self.positionX].visited = "V"
+        territory[self.positionY][self.positionX].moveCriteria = self.moveCriteria
+        return territory
