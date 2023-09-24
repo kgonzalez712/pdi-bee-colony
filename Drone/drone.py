@@ -3,7 +3,7 @@ import random
 #This class will model both ants and bees
 #used on the ACO and BCO algorithms
 class Drone:
-    def __init__(self, initialDirection, initialX, initialY, moveCriteria):
+    def __init__(self, initialDirection, initialX, initialY, cellQuality):
         self.direction = initialDirection
         self.positionX = initialX
         self.positionY = initialY
@@ -11,11 +11,11 @@ class Drone:
         self.southValue = 0
         self.eastValue = 0
         self.westValue = 0
-        self.northCriteria = 0
-        self.southCriteria = 0
-        self.eastCriteria = 0
-        self.westCriteria = 0
-        self.moveCriteria = moveCriteria #moveCriteria refers to the pheromone intensity
+        self.northCellQuality = 0
+        self.southCellQuality = 0
+        self.eastCellQuality = 0
+        self.westCellQuality = 0
+        self.cellQuality = cellQuality #cellQuality refers to the pheromone intensity
                                          # and nectar value used by ant and bees to figure
                                          # out their next move
     
@@ -69,56 +69,56 @@ class Drone:
         moveOptions = []
         if self.direction == "north":      
         if self.eastValue == 0:
-            moveOptions.append(("east", self.eastCriteria))
+            moveOptions.append(("east", self.eastCellQuality))
         if self.westValue == 0:
-            moveOptions.append(("west", self.westCriteria))
+            moveOptions.append(("west", self.westCellQuality))
         if self.northValue == 0:
-            moveOptions.append(("north", self.northCriteria))
+            moveOptions.append(("north", self.northCellQuality))
         else:
             if len(moveOptions) == 0:
             self.direction = "south"
-            moveOptions.append(("south", self.southCriteria))
+            moveOptions.append(("south", self.southCellQuality))
             else:
             self.changeDirection("north")
 
         elif self.direction == "south":
         if self.eastValue == 0:
-            moveOptions.append(("east", self.eastCriteria))
+            moveOptions.append(("east", self.eastCellQuality))
         if self.westValue == 0:
-            moveOptions.append(("west", self.westCriteria))
+            moveOptions.append(("west", self.westCellQuality))
         if self.southValue == 0:
-            moveOptions.append(("south", self.southCriteria))
+            moveOptions.append(("south", self.southCellQuality))
         else:
             if len(moveOptions) == 0:
             self.direction = "north"
-            moveOptions.append(("north", self.southCriteria))
+            moveOptions.append(("north", self.southCellQuality))
             else:
             self.changeDirection("south")
 
         elif self.direction == "east":
         if self.northValue == 0:
-            moveOptions.append(("north", self.northCriteria))
+            moveOptions.append(("north", self.northCellQuality))
         if self.southValue == 0:
-            moveOptions.append(("south", self.southCriteria))
+            moveOptions.append(("south", self.southCellQuality))
         if self.eastValue == 0:
-            moveOptions.append(("east", self.eastCriteria))
+            moveOptions.append(("east", self.eastCellQuality))
         else:
             if len(moveOptions) == 0:
             self.direction = "west"
-            moveOptions.append(("west", self.southCriteria))
+            moveOptions.append(("west", self.southCellQuality))
             else:
             self.changeDirection("east")
         elif self.direction == "west":
         if self.northValue == 0:
-            moveOptions.append(("north", self.northCriteria))
+            moveOptions.append(("north", self.northCellQuality))
         if self.southValue == 0:
-            moveOptions.append(("south", self.southCriteria))
+            moveOptions.append(("south", self.southCellQuality))
         if self.westValue == 0:
-            moveOptions.append(("west", self.westCriteria))
+            moveOptions.append(("west", self.westCellQuality))
         else:
             if len(moveOptions) == 0:
             self.direction = "east"
-            moveOptions.append(("east", self.southCriteria))
+            moveOptions.append(("east", self.southCellQuality))
             else:
             self.changeDirection("west")
         return moveOptions
@@ -134,7 +134,7 @@ class Drone:
             self.northValue = 1
         else:
             self.northValue = territory[self.positionY-1][self.positionX].value
-            self.northCriteria = territory[self.positionY-1][self.positionX].moveCriteria
+            self.northCellQuality = territory[self.positionY-1][self.positionX].cellQuality
         return
 
     def checkSouthNeighbor(self, territory):
@@ -142,7 +142,7 @@ class Drone:
             self.southValue = 1
         else:
             self.southValue = territory[self.positionY+1][self.positionX].value
-            self.southCriteria = territory[self.positionY+1][self.positionX].moveCriteria
+            self.southCellQuality = territory[self.positionY+1][self.positionX].cellQuality
         return
     
     def checkEastNeighbor(self, territory):
@@ -150,7 +150,7 @@ class Drone:
             self.eastValue = 1
         else:
             self.eastValue = territory[self.positionY][self.positionX+1].value
-            self.eastCriteria = territory[self.positionY][self.positionX+1].moveCriteria
+            self.eastCellQuality = territory[self.positionY][self.positionX+1].cellQuality
         return
     
     def checkWestNeighbor(self, territory):
@@ -158,10 +158,10 @@ class Drone:
             self.westValue = 1
         else:
             self.westValue = territory[self.positionY][self.positionX-1].value
-            self.westCriteria = territory[self.positionY][self.positionX-1].moveCriteria
+            self.westCellQuality = territory[self.positionY][self.positionX-1].cellQuality
         return
 
-    def depositMoveCriteria(self, territory):
+    def depositcellQuality(self, territory):
         territory[self.positionY][self.positionX].visited = "V"
-        territory[self.positionY][self.positionX].moveCriteria = self.moveCriteria
+        territory[self.positionY][self.positionX].cellQuality = self.cellQuality
         return territory
