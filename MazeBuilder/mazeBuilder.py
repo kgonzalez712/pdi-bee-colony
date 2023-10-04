@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 
-def create_maze(size):
+def createMaze(size):
   """Creates a square maze of size x size.
 
   Args:
@@ -17,20 +17,46 @@ def create_maze(size):
   matrix[-1, :] = 1
   matrix[2:, 0] = 1
   matrix[:, -1] = 1
-  matrix[-1, :] = 1 # Added this line to fix the bottom border
-
+  matrix[-1, :] = 1 
+  innerMatrix = matrix[2:-2, 2:-2]
+  result = populate(innerMatrix,size)
+  matrix[2:2+(len(innerMatrix)), 2:2+(len(innerMatrix))] = result
+  write_maze_to_txt_file(matrix, "maze.txt")
   return matrix
 
 
-
-def create_room():
+def createBlock():
+  option = random.randint(0,1)
   room = np.zeros((25, 25), dtype=int)
-  room[0, :] = 1
-  room[-1, :] = 1
-  room[:, 0] = 1
-  room[:, -1] = 1
-  room[-1, :] = 1 # Added this line to fix the bottom border
-  return Wall1(room)
+  if option == 1:
+    return createRoom(room)
+  else:
+    return createWall(room)
+  
+def createRoom(room):
+  option = random.randint(0,2)
+  if option == 0:
+    room[0, :] = 1
+    room[-1, :] = 1
+    room[:, 0] = 1
+    room[:, -1] = 1
+    room[-1, :] = 1
+    roomType = random.randint(0,4)
+    if roomType == 0:
+      return Room1(room)
+    elif roomType == 1:
+      return Room2(room)
+    elif roomType == 2:
+      return Room3(room)
+    else:
+      return Room4(room)
+  else:
+    wall = random.randint(6,20)
+    room[0, 6:] = 1
+    room[0:wall, 0] = 1
+    room[:wall, -1] = 1
+    room[wall, :] = 1
+    return room
 
 def Room1(room):
   for i in range(12, 17):
@@ -60,12 +86,16 @@ def Room4(room):
     room[j, 17] = 1
   return room
 
+def createWall(room):
+  option = random.randint(0,3)
+  if option == 0:
+    return Wall1(room)
+  elif option == 1:
+    return Wall2(room)
+  else:
+    return Wall3(room)
+
 def Wall1(room):
-  room[0, :] = 0
-  room[-1, :] = 0
-  room[:, 0] = 0
-  room[:, -1] = 0
-  room[-1, :] = 0 
   for i in range(10, 16):
     room[10, i] = 1
   for j in range(10, 16):
@@ -91,33 +121,18 @@ def write_maze_to_txt_file(maze, filename):
     for row in maze:
       f.write(" ".join([str(cell) for cell in row]) + "\n")
 
-def populate(inner,room):
+def populate(inner,size):
   # Specify the step size for inserting the 5x5 matrix
-  resul = inner
-  step = 50
-
+  step = 40
   # Iterate over rows of the 50x50 matrix with a step of 'step'
-  for insert_row in range(0, 300, step):
+  for insert_row in range(0, size, step):
       # Iterate over columns of the 50x50 matrix with a step of 'step'
-      for insert_col in range(0, 300, step):
+      for insert_col in range(0, size, step):
+          room = createBlock()
           # Insert the 5x5 matrix into the 50x50 matrix at the current position
-          resul[insert_row:insert_row + 25, insert_col:insert_col + 25] = room
-  return resul
+          inner[insert_row:insert_row + 25, insert_col:insert_col + 25] = room
+  return inner
 
-maze = create_maze(300)
-inner_matrix = maze[1:-1, 1:-1]
-room = create_room()
-res = populate(inner_matrix,room)
-mazeF = maze[1:1 + 300, 1:1 + 300] = res
-
-# Write the maze to a txt file.
-write_maze_to_txt_file(maze, "maze.txt")
-# Write the maze to a txt file.
-write_maze_to_txt_file(room, "room.txt")
-# Write the maze to a txt file.
-write_maze_to_txt_file(inner_matrix, "inner.txt")
-# Write the maze to a txt file.
-write_maze_to_txt_file(res, "res.txt")
-write_maze_to_txt_file(mazeF, "mazeF.txt")
+maze = createMaze(150)
 
 
