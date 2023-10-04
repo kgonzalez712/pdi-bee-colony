@@ -29,8 +29,8 @@ class Territory:
         for i, line in enumerate(self.lines):
             for j, char in enumerate(line):
                 if char == '0':
-                    cell = Cell(0)
+                    cell = Cell(0,1)
                 else:
-                    cell = Cell(1)
+                    cell = Cell(1,1)
                 matrix[i][j] = cell
         return matrix
