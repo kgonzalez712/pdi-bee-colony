@@ -2,10 +2,11 @@ import pygame
 import math
 from Territories.territory import Territory
 from Drone.drone import Drone
+from MazeBuilder.mazeBuilder import *
 
-WIDTH, HEIGHT = 600, 600
+WIDTH, HEIGHT = 1000, 1000
 CELL_SIZE = 5
-DRONE_NUMBER = 50
+DRONE_NUMBER = 10
 PHEROMONE_INTENSITY = 0
 OBSTACLE_COLOR = (63, 60, 60)
 DRONE_COLOR = (0, 0, 0)
@@ -36,8 +37,9 @@ def draw_drone(pos_x, pos_y):
 def main():
     run = True
     clock = pygame.time.Clock()
-
-    newTerritory = Territory("territory1.txt")
+    maze = createMaze(600)
+    write_maze_to_txt_file(maze,"maze.txt")
+    newTerritory = Territory("maze.txt")
     territory = newTerritory.matrix
 
     drones = []

@@ -1,4 +1,5 @@
 from Territories.cell import Cell
+from MazeBuilder.mazeBuilder import *
 
 class Territory:
     
@@ -24,7 +25,6 @@ class Territory:
     def create_territory(self):
         # Create an empty matrix
         matrix = [[None for _ in range(self.num_cols)] for _ in range(self.num_rows)]
-
         # Store the characters in the matrix
         for i, line in enumerate(self.lines):
             for j, char in enumerate(line):

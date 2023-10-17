@@ -17,9 +17,13 @@ def createMaze(size):
   matrix[-1, :] = 1
   matrix[2:, 0] = 1
   matrix[:, -1] = 1
-  matrix[-1, :] = 1 
+  matrix[-1, :] = 1
   innerMatrix = matrix[2:-2, 2:-2]
-  result = populate(innerMatrix,size)
+  option = random.randint(0,2)
+  if option == 0:
+    result = populate(innerMatrix,size)
+  else:
+    result = randomMaze(len(innerMatrix),innerMatrix)
   matrix[2:2+(len(innerMatrix)), 2:2+(len(innerMatrix))] = result
   write_maze_to_txt_file(matrix, "maze.txt")
   return matrix
@@ -115,11 +119,19 @@ def Wall3(room):
       room[j, i] = 1
   return room
 
+def randomMaze(size,inner):
+  # Add obstacles randomly.
+  for i in range(size):
+    for j in range(size):
+      if random.random() < 0.3:
+        inner[i][j] = 1
+
+  return inner
 # Write the maze to a txt file.
 def write_maze_to_txt_file(maze, filename):
   with open(filename, "w") as f:
     for row in maze:
-      f.write(" ".join([str(cell) for cell in row]) + "\n")
+      f.write("".join([str(cell) for cell in row]) + "\n")
 
 def populate(inner,size):
   # Specify the step size for inserting the 5x5 matrix
