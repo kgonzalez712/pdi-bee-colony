@@ -1,5 +1,6 @@
 import pygame
 import math
+import sys
 from Territories.territory import Territory
 from Drone.drone import Drone
 from MazeBuilder.mazeBuilder import *
@@ -34,7 +35,18 @@ def draw_drone(pos_x, pos_y):
     pygame.draw.rect(WIN, DRONE_COLOR, pygame.Rect(pos_x*CELL_SIZE,pos_y*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
 
 
+def ask_for_parameters():
+
+    drone_number = int(input("Enter the number of drones (values should be from 1 to 100): "))
+    algorithm = int(input("Enter the number of the algorithm you want to use. 1 - ACO  2 - BCO : "))
+    # pheromone_intensity = float(input("Enter the initial pheromone intensity: "))
+
+    return drone_number, algorithm 
+
+
+
 def main():
+    drone_number, algorithm = ask_for_parameters()
     run = True
     clock = pygame.time.Clock()
     maze = createMaze(600)
@@ -44,7 +56,7 @@ def main():
 
     drones = []
 
-    for i in range(1, DRONE_NUMBER + 1):
+    for i in range(1, drone_number + 1):
         if i%4 == 0:
             drone = Drone("north",0,0)
         elif i%3 == 0:
