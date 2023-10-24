@@ -3,21 +3,24 @@ import math
 import sys
 from Territories.territory import Territory
 from Drone.drone import Drone
+from Drone.bee import BeeDrone
+from Drone.ant import AntDrone
 from MazeBuilder.mazeBuilder import *
 
-WIDTH, HEIGHT = 1000, 1000
+WIDTH, HEIGHT = 1100, 1100
+
 CELL_SIZE = 5
-DRONE_NUMBER = 10
-PHEROMONE_INTENSITY = 0
+PHEROMONE_INTENSITY = 500
 OBSTACLE_COLOR = (63, 60, 60)
 DRONE_COLOR = (0, 0, 0)
 WHITE = (255, 255, 255)
+
 
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Directional Pheromone Walk Simulation")
 
-def draw_territory(territory):
+def drawTerritory(territory, algorithm):
     for i in range(0, len(territory)):
         for j in range(0, len(territory)):
             if territory[i][j].value == 1:
@@ -27,45 +30,92 @@ def draw_territory(territory):
                 if(territory[i][j].visited == "F"):
                     pheromoneColor = WHITE
                 else:
+                    if algorithm == 1:
+                        if cellQuality in range(337, 501):
+                            pheromoneColor = (229, 66 + (500 - cellQuality), 66)
+                        elif cellQuality in range(174, 337):
+                            pheromoneColor = (cellQuality - 109, 229, 66)
+                        elif cellQuality in range(11, 174):
+                            pheromoneColor = (66, 229, 66 + (173 - cellQuality))
+                        elif cellQuality in range (1, 11):
+                            pheromoneColor = (66 + (10 - cellQuality), 229, 229)
+                        else:
+                            pheromoneColor = (76, 229, 229)
+                    else:
                         pheromoneColor = (76, 229, 229)
                 pygame.draw.rect(WIN, pheromoneColor, pygame.Rect(j*CELL_SIZE,i*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
 
 
-def draw_drone(pos_x, pos_y):
+def drawDrone(pos_x, pos_y):
     pygame.draw.rect(WIN, DRONE_COLOR, pygame.Rect(pos_x*CELL_SIZE,pos_y*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
 
 
-def ask_for_parameters():
+def askForParameters():
+    """Prompts the user to enter values for the simulation parameters.
 
-    drone_number = int(input("Enter the number of drones (values should be from 1 to 100): "))
+    Returns:
+        A tuple containing the following values:
+            * `drone_number`: The number of drones to simulate.
+            * `algorithm`: The algorithm to use.
+    """
+    size = int(input("Enter the size of the map (150 / 300 / 600): "))
+    while size != 150 and size != 300 and size != 600:
+        print("Invalid size. Please choose from 150, 300 or 600.")
+        size = int(input("Enter the size of the map (150 / 300 / 600): "))
+
+    mapType = int(input("Do you want the map to ve completly random? 1 - YES  2 - NO :  "))
+    while mapType != 1 and mapType != 2:
+        print("Invalid map type number. Please enter 1 for YES or 2 for NO.")
+        mapType = int(input("Do you want the map to ve completly random? 1 - YES  2 - NO :  "))
+
+    droneNumber = int(input("Enter the number of drones (values should be from 1 to 100): "))
+    while droneNumber < 1 or droneNumber > 100:
+        print("Invalid number of drones. Please enter a value between 1 and 100.")
+        droneNumber = int(input("Enter the number of drones (values should be from 1 to 100): "))
+
     algorithm = int(input("Enter the number of the algorithm you want to use. 1 - ACO  2 - BCO : "))
-    # pheromone_intensity = float(input("Enter the initial pheromone intensity: "))
+    while algorithm != 1 and algorithm != 2:
+        print("Invalid algorithm number. Please enter 1 for ACO or 2 for BCO.")
+        algorithm = int(input("Enter the number of the algorithm you want to use. 1 - ACO  2 - BCO : "))
 
-    return drone_number, algorithm 
+    return size, mapType, droneNumber, algorithm
+
 
 
 
 def main():
-    drone_number, algorithm = ask_for_parameters()
+    size, mapType, droneNumber, algorithm = askForParameters()
     run = True
     clock = pygame.time.Clock()
-    maze = createMaze(600)
+    maze = createMaze(size, mapType)
     write_maze_to_txt_file(maze,"maze.txt")
     newTerritory = Territory("maze.txt")
     territory = newTerritory.matrix
 
     drones = []
+    if (algorithm == 2):
+        for i in range(1, droneNumber + 1):
+            if i%4 == 0:
+                drone = BeeDrone("north",0,0)
+            elif i%3 == 0:
+                drone = BeeDrone("south",0,0)
+            elif i%2 == 0:
+                drone = BeeDrone("east",0,0)
+            else:
+                drone = BeeDrone("west",0,0)
+            drones.append(drone)
+    else:
+        for i in range(1, droneNumber + 1):
+            if i%4 == 0:
+                drone = AntDrone("north",0,0,PHEROMONE_INTENSITY)
+            elif i%3 == 0:
+                drone = AntDrone("south",0,0,PHEROMONE_INTENSITY)
+            elif i%2 == 0:
+                drone = AntDrone("east",0,0,PHEROMONE_INTENSITY)
+            else:
+                drone = AntDrone("west",0,0,PHEROMONE_INTENSITY)
+            drones.append(drone)
 
-    for i in range(1, drone_number + 1):
-        if i%4 == 0:
-            drone = Drone("north",0,0)
-        elif i%3 == 0:
-            drone = Drone("south",0,0)
-        elif i%2 == 0:
-            drone = Drone("east",0,0)
-        else:
-            drone = Drone("west",0,0)
-        drones.append(drone)
 
 
     missingCells = True
@@ -86,11 +136,17 @@ def main():
             missingCells = False
             for drone in drones:
                 drone.move(territory)
-                territory = drone.markVisitedCell(territory)
-                territory = drone.reduceCellQuality(territory)
+                if algorithm == 2:
+                    territory = drone.markVisitedCell(territory)
+                    territory = drone.reduceCellQuality(territory)
+                else:
+                    territory = drone.depositPheromone(territory)
             for row in territory:
                 for cell in row:
-                    cell.reduceQuality()
+                    if algorithm == 2:
+                        cell.reduceQuality()
+                    else:
+                        cell.evaporatePheromone()
                     if cell.visited == "F":
                         missingCells = True
         else:
@@ -98,9 +154,9 @@ def main():
         
 
         
-        draw_territory(territory)
+        drawTerritory(territory, algorithm)
         for drone in drones:
-            draw_drone(drone.positionX, drone.positionY)
+            drawDrone(drone.positionX, drone.positionY)
         pygame.display.update()
     
     pygame.quit()

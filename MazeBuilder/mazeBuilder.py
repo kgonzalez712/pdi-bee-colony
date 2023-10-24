@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 
-def createMaze(size):
+def createMaze(size, mapType):
   """Creates a square maze of size x size.
 
   Args:
@@ -19,8 +19,7 @@ def createMaze(size):
   matrix[:, -1] = 1
   matrix[-1, :] = 1
   innerMatrix = matrix[2:-2, 2:-2]
-  option = random.randint(0,2)
-  if option == 0:
+  if mapType == 2:
     result = populate(innerMatrix,size)
   else:
     result = randomMaze(len(innerMatrix),innerMatrix)
@@ -144,7 +143,5 @@ def populate(inner,size):
           # Insert the 5x5 matrix into the 50x50 matrix at the current position
           inner[insert_row:insert_row + 25, insert_col:insert_col + 25] = room
   return inner
-
-maze = createMaze(150)
 
 

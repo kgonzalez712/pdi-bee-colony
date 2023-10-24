@@ -12,7 +12,7 @@ class Cell:
         self.value = value
         self.visited = "F" if self.value == 0 else "-" # F means not visited, V means visted and - is used for walls
     
-        if swarmAlgorithm == 0:
+        if swarmAlgorithm == 1:
             self.cellQuality = 0
         elif self.value != 1:
             self.cellQuality = random.randint(500, 1000)
@@ -32,3 +32,9 @@ class Cell:
         else:
             self.cellQuality = random.randint(500, 1000)
         return self.cellQuality
+
+      
+    def evaporatePheromone(self):
+        self.cellQuality = self.cellQuality - 1
+        return self.cellQuality
+
