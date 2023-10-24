@@ -6,6 +6,8 @@ from Drone.drone import Drone
 from Drone.bee import BeeDrone
 from Drone.ant import AntDrone
 from MazeBuilder.mazeBuilder import *
+import datetime
+
 
 WIDTH, HEIGHT = 1100, 1100
 
@@ -81,9 +83,41 @@ def askForParameters():
     return size, mapType, droneNumber, algorithm
 
 
+def write_log_file(algorithm, drones, mapType, size, duration, iterations):
+    """Writes a log file containing the parameters used, duration of the run, and number of iterations.
 
+    Args:
+        parameters: A dictionary containing the parameters used in the simulation.
+        duration: The duration of the simulation in seconds.
+        iterations: The number of iterations in the simulation.
+    """
+
+    # Get the current time.
+    now = datetime.datetime.now()
+
+    # Create the log file name.
+    log_file_name = "Run_{}.log".format(now.strftime("%Y-%m-%d_%H-%M-%S"))
+    with open(log_file_name, "w") as f:
+    # Open the log file for writing.
+        if(algorithm == 1):
+            f.write("Algorithm Used: Ant Colony Optimization (ACO)")
+        else:
+            f.write("Algorithm Used: Bee Colony Optimization (BCO)")
+
+        f.write("Map Size Used: "+  str(size) +"\n")
+
+        if(algorithm == 1):
+            f.write("Map Type Used: Completly Random Terrain")
+        else:
+            f.write("Map Type Used: Random Building Terrain")
+    
+        f.write("Number of Drones Used: "+  str(drones) +"\n")
+        f.write("Duration: {} seconds\n".format(duration))
+        f.write("Iterations: {}\n".format(iterations))
 
 def main():
+     # Start the simulation.
+    start_time = datetime.datetime.now()
     size, mapType, droneNumber, algorithm = askForParameters()
     run = True
     clock = pygame.time.Clock()
@@ -150,7 +184,7 @@ def main():
                     if cell.visited == "F":
                         missingCells = True
         else:
-            print("Iterations: ", counter)
+            break
         
 
         
@@ -159,6 +193,13 @@ def main():
             drawDrone(drone.positionX, drone.positionY)
         pygame.display.update()
     
+        # Stop the simulation.
+    end_time = datetime.datetime.now()
+
+    # Calculate the duration of the simulation.
+    duration = (end_time - start_time).total_seconds()
+    # Write the log file.
+    write_log_file(algorithm, droneNumber, mapType, size, duration, counter)
     pygame.quit()
 
 main()
