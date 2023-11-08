@@ -133,7 +133,7 @@ def write_maze_to_txt_file(maze, filename):
       f.write("".join([str(cell) for cell in row]) + "\n")
 
 def populate(inner,size):
-  # Specify the step size for inserting the 5x5 matrix
+  # Specify the step size for inserting the 25x25 matrix
   step = 40
   # Iterate over rows of the 50x50 matrix with a step of 'step'
   for insert_row in range(0, size, step):

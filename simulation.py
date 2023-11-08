@@ -9,9 +9,8 @@ from MazeBuilder.mazeBuilder import *
 import datetime
 
 
-WIDTH, HEIGHT = 1100, 1100
+WIDTH, HEIGHT = 835, 835
 
-CELL_SIZE = 5
 PHEROMONE_INTENSITY = 500
 OBSTACLE_COLOR = (63, 60, 60)
 DRONE_COLOR = (0, 0, 0)
@@ -22,11 +21,11 @@ pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Directional Pheromone Walk Simulation")
 
-def drawTerritory(territory, algorithm):
+def drawTerritory(territory, algorithm,cellSize):
     for i in range(0, len(territory)):
         for j in range(0, len(territory)):
             if territory[i][j].value == 1:
-                pygame.draw.rect(WIN, OBSTACLE_COLOR, pygame.Rect(j*CELL_SIZE,i*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
+                pygame.draw.rect(WIN, OBSTACLE_COLOR, pygame.Rect(j*cellSize,i*cellSize,cellSize, cellSize),0)
             else:
                 cellQuality = territory[i][j].cellQuality
                 if(territory[i][j].visited == "F"):
@@ -45,11 +44,11 @@ def drawTerritory(territory, algorithm):
                             pheromoneColor = (76, 229, 229)
                     else:
                         pheromoneColor = (76, 229, 229)
-                pygame.draw.rect(WIN, pheromoneColor, pygame.Rect(j*CELL_SIZE,i*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
+                pygame.draw.rect(WIN, pheromoneColor, pygame.Rect(j*cellSize,i*cellSize,cellSize, cellSize),0)
 
 
-def drawDrone(pos_x, pos_y):
-    pygame.draw.rect(WIN, DRONE_COLOR, pygame.Rect(pos_x*CELL_SIZE,pos_y*CELL_SIZE,CELL_SIZE, CELL_SIZE),0)
+def drawDrone(posX, posY,cellSize):
+    pygame.draw.rect(WIN, DRONE_COLOR, pygame.Rect(posX*cellSize,posY*cellSize,cellSize, cellSize),0)
 
 
 def askForParameters():
@@ -60,15 +59,15 @@ def askForParameters():
             * `drone_number`: The number of drones to simulate.
             * `algorithm`: The algorithm to use.
     """
-    size = int(input("Enter the size of the map (150 / 300 / 600): "))
-    while size != 150 and size != 300 and size != 600:
-        print("Invalid size. Please choose from 150, 300 or 600.")
-        size = int(input("Enter the size of the map (150 / 300 / 600): "))
+    size = int(input("Enter the size of the map (150 / 200 / 275): "))
+    while size != 150 and size != 200 and size != 275:
+        print("Invalid size. Please choose from 150, 200 or 275.")
+        size = int(input("Enter the size of the map (150 / 200 / 275): "))
 
     mapType = int(input("Do you want the map to ve completly random? 1 - YES  2 - NO :  "))
     while mapType != 1 and mapType != 2:
         print("Invalid map type number. Please enter 1 for YES or 2 for NO.")
-        mapType = int(input("Do you want the map to ve completly random? 1 - YES  2 - NO :  "))
+        mapType = int(input("Do you want the map to be completly random maze ? 1 - YES  2 - NO :  "))
 
     droneNumber = int(input("Enter the number of drones (values should be from 1 to 100): "))
     while droneNumber < 1 or droneNumber > 100:
@@ -100,20 +99,20 @@ def write_log_file(algorithm, drones, mapType, size, duration, iterations):
     with open(log_file_name, "w") as f:
     # Open the log file for writing.
         if(algorithm == 1):
-            f.write("Algorithm Used: Ant Colony Optimization (ACO)")
+            f.write("Algorithm Used: Ant Colony Optimization (ACO) \n")
         else:
-            f.write("Algorithm Used: Bee Colony Optimization (BCO)")
+            f.write("Algorithm Used: Bee Colony Optimization (BCO) \n")
 
         f.write("Map Size Used: "+  str(size) +"\n")
 
         if(algorithm == 1):
-            f.write("Map Type Used: Completly Random Terrain")
+            f.write("Map Type Used: Completly Random Terrain \n")
         else:
-            f.write("Map Type Used: Random Building Terrain")
+            f.write("Map Type Used: Random Building Terrain \n")
     
         f.write("Number of Drones Used: "+  str(drones) +"\n")
-        f.write("Duration: {} seconds\n".format(duration))
-        f.write("Iterations: {}\n".format(iterations))
+        f.write("Duration: {} seconds\n".format(duration) +"\n")
+        f.write("Iterations: {}\n".format(iterations) +"\n")
 
 def main():
      # Start the simulation.
@@ -125,7 +124,12 @@ def main():
     write_maze_to_txt_file(maze,"maze.txt")
     newTerritory = Territory("maze.txt")
     territory = newTerritory.matrix
-
+    if (size == 150):
+        cellSize = 5
+    elif (size == 200):
+        cellSize = 4
+    else:
+        cellSize = 3
     drones = []
     if (algorithm == 2):
         for i in range(1, droneNumber + 1):
@@ -188,9 +192,9 @@ def main():
         
 
         
-        drawTerritory(territory, algorithm)
+        drawTerritory(territory, algorithm,cellSize)
         for drone in drones:
-            drawDrone(drone.positionX, drone.positionY)
+            drawDrone(drone.positionX, drone.positionY,cellSize)
         pygame.display.update()
     
         # Stop the simulation.
